@@ -25,9 +25,7 @@ data "aws_iam_policy_document" "source_assume_role" {
       "sts:AssumeRole"
     ]
     principals {
-      identifiers = [
-        "arn_aws_iam::926226587429:root"
-      ]
+      identifiers = ["arn:aws:iam::926226587429:root"]
       type = "AWS"
     }
   }
