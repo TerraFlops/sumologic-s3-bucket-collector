@@ -1,18 +1,15 @@
-data "aws_caller_identity" "default" {}
-data "aws_region" "default" {}
-
 locals {
-  name_snake = join("", [ for element in split("-",replace(var.name, "_", "-")): title(element) ])
+  name_camel = join("", [ for element in split("-", replace(var.name, "_", "-")): title(element) ])
 }
 
-# Create Sumo Logic role
+ Create Sumo Logic role
 resource "sumologic_role" "source" {
-  name = local.name_snake
+  name = local.name_camel
 }
 
 # Create IAM role that Sumo Logic will use the read the source bucket
 resource "aws_iam_role" "source" {
-  name = "SumoLogicS3Collector${local.name_snake}"
+  name = "SumoLogicS3Collector${local.name_camel}"
   assume_role_policy = data.aws_iam_policy_document.source_assume_role.json
 }
 
@@ -50,21 +47,24 @@ data "aws_iam_policy_document" "source" {
 
 # Attach IAM policy to the user
 resource "aws_iam_role_policy" "source" {
-  name = "SumoLogicBucketCollector${local.name_snake}Policy"
+  name = "SumoLogicBucketCollector${local.name_camel}Policy"
   role = aws_iam_role.source.id
   policy = data.aws_iam_policy_document.source.json
 }
 
 # Create Sumo Logic collector for the S3 bucket
 resource "sumologic_collector" "collector" {
-  name = "TerraformS3Collector${data.aws_caller_identity.default.account_id}${local.name_snake}"
-  description = "AWS S3 Bucket Collector (${local.name_snake})"
+  depends_on = [
+    aws_iam_role_policy.source
+  ]
+  name = "TerraformS3Collector${data.aws_caller_identity.default.account_id}${local.name_camel}"
+  description = "AWS S3 Bucket Collector (${local.name_camel})"
 }
 
 # Create Sumo Logic S3 bucket source
 resource "sumologic_s3_source" "source" {
-  name = "TerraformS3Source${data.aws_caller_identity.default.account_id}${local.name_snake}"
-  description = "AWS S3 Bucket Source (${local.name_snake})"
+  name = "TerraformS3Source${data.aws_caller_identity.default.account_id}${local.name_camel}"
+  description = "AWS S3 Bucket Source (${local.name_camel})"
   category = "aws/s3"
   content_type = "AwsS3Bucket"
   scan_interval = "2500"
