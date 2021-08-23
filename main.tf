@@ -81,6 +81,6 @@ resource "sumologic_s3_source" "source" {
   path {
     type = "S3BucketPathExpression"
     bucket_name = var.bucket_name
-    path_expressions = var.bucket_path_expression
+    path_expression = var.bucket_path_expression
   }
 }
