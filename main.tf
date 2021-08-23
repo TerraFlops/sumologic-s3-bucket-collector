@@ -13,7 +13,7 @@ resource "sumologic_role" "source" {
 # Create IAM role that Sumo Logic will use the read the source bucket
 resource "aws_iam_role" "source" {
   name = "SumoLogicS3Collector${local.name_snake}"
-  assume_role_policy = data.aws_iam_policy_document.source_assume_role
+  assume_role_policy = data.aws_iam_policy_document.source_assume_role.json
 }
 
 # Allow SumoLogic to assume the IAM role
